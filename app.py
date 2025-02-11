@@ -2,7 +2,7 @@ import os
 import json
 import shutil
 import logging
-from flask import Flask, render_template, request, jsonify, flash, send_from_directory, redirect, send_file
+from flask import Flask, render_template, request, jsonify, flash, send_from_directory, redirect, send_file, session, url_for
 from werkzeug.utils import secure_filename
 import csv
 from datetime import datetime
@@ -12,7 +12,21 @@ import io
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'
+app.secret_key = 'your-secret-key-here'  # Già presente, usata anche per le sessioni
+
+# Definisci le credenziali (in produzione, dovresti gestirle in modo più sicuro)
+app.config['USERNAME'] = 'user'
+app.config['PASSWORD'] = 'pass'
+
+@app.before_request
+def require_login():
+    logging.debug(f"Richiesta per endpoint: {request.endpoint}")
+    allowed_routes = ['login', 'logout', 'static']
+    if request.endpoint not in allowed_routes and not session.get('logged_in'):
+        logging.debug("Utente non autenticato, redirect alla pagina di login.")
+        return redirect(url_for('login', next=request.url))
+
+
 
 # Ensure data and uploads directories exist
 DATA_DIR = 'data'
@@ -98,6 +112,33 @@ def get_file_icon(filename):
         'gif': 'bi-file-image'
     }
     return icons.get(ext, 'bi-file')
+
+
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Estrai i dati dal form
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Verifica le credenziali
+        if username == app.config.get('USERNAME') and password == app.config.get('PASSWORD'):
+            session['logged_in'] = True
+            flash('Login effettuato con successo!', 'success')
+            next_url = request.args.get('next')
+            return redirect(next_url or url_for('index'))
+        else:
+            flash('Credenziali non valide', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash('Logout effettuato con successo!', 'success')
+    return redirect(url_for('login'))
+
 
 @app.context_processor
 def utility_processor():
