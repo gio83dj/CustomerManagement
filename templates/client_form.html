@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">{% if edit_mode %}Modifica{% else %}Nuovo{% endif %} Cliente</h2>
+
+        <form id="clientForm" action="{% if edit_mode %}/edit_client/{{ client.id }}{% else %}/add_client{% endif %}" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" name="nome" required
+                       value="{{ client.nome if client else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="cognome" class="form-label">Cognome</label>
+                <input type="text" class="form-control" id="cognome" name="cognome" required
+                       value="{{ client.cognome if client else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="indirizzo" class="form-label">Indirizzo</label>
+                <input type="text" class="form-control" id="indirizzo" name="indirizzo" required
+                       value="{{ client.indirizzo if client else '' }}">
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label for="citta" class="form-label">Città</label>
+                    <input type="text" class="form-control" id="citta" name="citta" required
+                           value="{{ client.citta if client else '' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="cap" class="form-label">CAP</label>
+                    <input type="text" class="form-control" id="cap" name="cap" required
+                           value="{{ client.cap if client else '' }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Numero di Telefono</label>
+                <input type="tel" class="form-control" id="telefono" name="telefono" required
+                       value="{{ client.telefono if client else '' }}">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="marca" class="form-label">Marca</label>
+                    <input type="text" class="form-control" id="marca" name="marca" required
+                           value="{{ client.marca if client else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="modello" class="form-label">Modello</label>
+                    <input type="text" class="form-control" id="modello" name="modello" required
+                           value="{{ client.modello if client else '' }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="matricola" class="form-label">Matricola</label>
+                <input type="text" class="form-control" id="matricola" name="matricola" required
+                       value="{{ client.matricola if client else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="dataInstallazione" class="form-label">Data Installazione</label>
+                <input type="date" class="form-control" id="dataInstallazione" name="dataInstallazione" required
+                       value="{{ client.dataInstallazione if client else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="files" class="form-label">Files (PDF, Immagini, Excel, etc)</label>
+                <input type="file" class="form-control" id="files" name="files" multiple>
+                {% if client and client.files %}
+                <div class="files-container mt-2">
+                    {% for file in client.files %}
+                    <div class="file-item">
+                        {% if file.type == 'image' %}
+                        <img src="{{ file.url }}" class="img-thumbnail" alt="{{ file.name }}"
+                             onclick="showFileModal('{{ client.id }}', '{{ file.name }}')">
+                        {% else %}
+                        <div class="file-icon" onclick="showFileModal('{{ client.id }}', '{{ file.name }}')">
+                            <i class="{{ get_file_icon(file.name) }} fs-1"></i>
+                            <div class="file-name">{{ file.name }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div id="customFields">
+                {% if client and client.custom_fields %}
+                    {% for field_name, field_value in client.custom_fields.items() %}
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control" 
+                                       value="{{ field_name }}"
+                                       name="custom_field_name_{{ loop.index }}">
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" 
+                                       value="{{ field_value }}"
+                                       name="custom_field_value_{{ loop.index }}">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <button type="button" class="btn btn-secondary mb-3" onclick="addCustomField()">
+                Aggiungi Campo Personalizzato
+            </button>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Salva Cliente</button>
+                <button type="button" onclick="window.location.href='/'" class="btn btn-secondary ms-2">Annulla</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function addCustomField() {
+    const container = document.getElementById('customFields');
+    const fieldNum = container.children.length + 1;
+
+    const div = document.createElement('div');
+    div.className = 'mb-3';
+    div.innerHTML = `
+        <div class="row">
+            <div class="col">
+                <input type="text" class="form-control" 
+                       placeholder="Nome campo" 
+                       name="custom_field_name_${fieldNum}">
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" 
+                       placeholder="Valore" 
+                       name="custom_field_value_${fieldNum}">
+            </div>
+        </div>
+    `;
+
+    container.appendChild(div);
+}
+function showImageModal(clientId, imageName) {
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = `/data/${clientId}/${imageName}`;
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

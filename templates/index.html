@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <h2>Clienti</h2>
+        <input type="text" id="searchInput" class="form-control" 
+               placeholder="Cerca per nome, telefono o matricola...">
+    </div>
+    <div class="col-md-6 mb-4 text-end">
+        <button onclick="exportToExcel()" class="btn btn-success">
+            <i class="bi bi-file-excel"></i> Esporta in Excel
+        </button>
+    </div>
+</div>
+
+<div id="clientsList" class="row">
+    {% for client in clients %}
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ client.nome }} {{ client.cognome }}</h5>
+                <p class="card-text">
+                    <strong>Telefono:</strong> 
+                    <a href="tel:{{ client.telefono }}" class="text-decoration-none">
+                        <i class="bi bi-telephone"></i> {{ client.telefono }}
+                    </a>
+                    <br>
+                    <strong>Marca/Modello:</strong> {{ client.marca }} {{ client.modello }}<br>
+                    <strong>Matricola:</strong> {{ client.matricola }}
+                </p>
+                <div class="btn-group">
+                    <a href="/client/{{ client.id }}" class="btn btn-primary">Dettagli</a>
+                    <a href="/edit_client/{{ client.id }}" class="btn btn-secondary">Modifica</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="text-center mt-4">
+    <a href="/add_client" class="btn btn-primary">Aggiungi Nuovo Cliente</a>
+</div>
+{% endblock %}

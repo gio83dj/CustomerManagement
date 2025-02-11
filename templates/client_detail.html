@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">{{ client.nome }} {{ client.cognome }}</h2>
+                <div class="mt-4">
+                    <p>
+                        <strong>Telefono:</strong> 
+                        <a href="tel:{{ client.telefono }}" class="text-decoration-none">
+                            <i class="bi bi-telephone"></i> {{ client.telefono }}
+                        </a>
+                    </p>
+                    <p>
+                        <strong>Indirizzo:</strong>
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ client.indirizzo|urlencode }}+{{ client.citta|urlencode }}+{{ client.cap|urlencode }}" 
+                           target="_blank" class="text-decoration-none">
+                            <i class="bi bi-geo-alt"></i> 
+                            {{ client.indirizzo }}, {{ client.citta }} ({{ client.cap }})
+                        </a>
+                    </p>
+                    <p><strong>Marca:</strong> {{ client.marca }}</p>
+                    <p><strong>Modello:</strong> {{ client.modello }}</p>
+                    <p><strong>Matricola:</strong> {{ client.matricola }}</p>
+                    <p><strong>Data Installazione:</strong> {{ client.dataInstallazione }}</p>
+
+                    {% if client.custom_fields %}
+                    <h4 class="mt-4">Campi Personalizzati</h4>
+                    {% for field_name, field_value in client.custom_fields.items() %}
+                    <p><strong>{{ field_name }}:</strong> {{ field_value }}</p>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if client.files %}
+                    <h4 class="mt-4">Files</h4>
+                    <div class="files-container">
+                        {% for file in client.files %}
+                        <div class="file-item">
+                            {% if file.name.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')) %}
+                            <img src="/data/{{ client.id }}/{{ file.name }}" 
+                                 class="img-thumbnail" alt="{{ file.name }}"
+                                 onclick="showFileModal('{{ client.id }}', '{{ file.name }}')">
+                            {% else %}
+                            <div class="file-icon" onclick="showFileModal('{{ client.id }}', '{{ file.name }}')">
+                                <i class="{{ get_file_icon(file.name) }} fs-1"></i>
+                                <div class="file-name">{{ file.name }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4">
+                    <a href="/edit_client/{{ client.id }}" class="btn btn-primary">Modifica</a>
+                    <button onclick="deleteClient('{{ client.id }}')" class="btn btn-danger">Elimina Cliente</button>
+                    <a href="/" class="btn btn-secondary">Torna alla Lista</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function deleteClient(clientId) {
+    if (confirm('Sei sicuro di voler eliminare questo cliente? Questa azione non può essere annullata.')) {
+        try {
+            const response = await fetch(`/delete_client/${clientId}`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                window.location.href = '/';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+</script>
+{% endblock %}
