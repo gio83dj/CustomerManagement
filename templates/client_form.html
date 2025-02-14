@@ -2,196 +2,284 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2 class="mb-4">{% if edit_mode %}Modifica{% else %}Nuovo{% endif %} Cliente</h2>
+  <div class="col-md-8">
+    <h2 class="mb-4">{% if edit_mode %}Modifica{% else %}Nuovo{% endif %} Cliente</h2>
 
-        <form id="clientForm" action="{% if edit_mode %}/edit_client/{{ client.id }}{% else %}/add_client{% endif %}" method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" class="form-control" id="nome" name="nome" required
-                       value="{{ client.nome if client else '' }}">
-            </div>
+    <!-- Aggiungiamo onsubmit per richiamare la validazione -->
+    <form id="clientForm" onsubmit="return validateAndFocus()" action="{% if edit_mode %}/edit_client/{{ client.id }}{% else %}/add_client{% endif %}" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" class="form-control" id="nome" name="nome" required
+               value="{{ client.nome if client else '' }}">
+      </div>
 
-            <div class="mb-3">
-                <label for="cognome" class="form-label">Cognome</label>
-                <input type="text" class="form-control" id="cognome" name="cognome" required
-                       value="{{ client.cognome if client else '' }}">
-            </div>
+      <div class="mb-3">
+        <label for="cognome" class="form-label">Cognome</label>
+        <input type="text" class="form-control" id="cognome" name="cognome" required
+               value="{{ client.cognome if client else '' }}">
+      </div>
 
-            <div class="mb-3">
-                <label for="indirizzo" class="form-label">Indirizzo</label>
-                <input type="text" class="form-control" id="indirizzo" name="indirizzo" required
-                       value="{{ client.indirizzo if client else '' }}">
-            </div>
+      <div class="mb-3">
+        <label for="indirizzo" class="form-label">Indirizzo</label>
+        <input type="text" class="form-control" id="indirizzo" name="indirizzo" required
+               value="{{ client.indirizzo if client else '' }}">
+      </div>
 
-            <div class="row">
-                <div class="col-md-8 mb-3">
-                    <label for="citta" class="form-label">Città</label>
-                    <input type="text" class="form-control" id="citta" name="citta" required
-                           value="{{ client.citta if client else '' }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="cap" class="form-label">CAP</label>
-                    <input type="text" class="form-control" id="cap" name="cap" required
-                           value="{{ client.cap if client else '' }}">
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-md-8 mb-3">
+          <label for="citta" class="form-label">Città</label>
+          <input type="text" class="form-control" id="citta" name="citta" required
+                 value="{{ client.citta if client else '' }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="cap" class="form-label">CAP</label>
+          <input type="text" class="form-control" id="cap" name="cap" required
+                 value="{{ client.cap if client else '' }}">
+        </div>
+      </div>
 
-            <div class="mb-3">
-                <label for="telefono" class="form-label">Numero di Telefono</label>
-                <input type="tel" class="form-control" id="telefono" name="telefono" required
-                       value="{{ client.telefono if client else '' }}">
-            </div>
+      <div class="mb-3">
+        <label for="telefono" class="form-label">Numero di Telefono</label>
+        <input type="tel" class="form-control" id="telefono" name="telefono" required
+               value="{{ client.telefono if client else '' }}">
+      </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="marca" class="form-label">Marca</label>
-                    <input type="text" class="form-control" id="marca" name="marca" required
-                           value="{{ client.marca if client else '' }}">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="modello" class="form-label">Modello</label>
-                    <input type="text" class="form-control" id="modello" name="modello" required
-                           value="{{ client.modello if client else '' }}">
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="marca" class="form-label">Marca</label>
+          <input type="text" class="form-control" id="marca" name="marca" required
+                 value="{{ client.marca if client else '' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="modello" class="form-label">Modello</label>
+          <input type="text" class="form-control" id="modello" name="modello" required
+                 value="{{ client.modello if client else '' }}">
+        </div>
+      </div>
 
-            <div class="mb-3">
-                <label for="matricola" class="form-label">Matricola</label>
-                <input type="text" class="form-control" id="matricola" name="matricola" required
-                       value="{{ client.matricola if client else '' }}">
-            </div>
+      <div class="mb-3">
+        <label for="matricola" class="form-label">Matricola</label>
+        <input type="text" class="form-control" id="matricola" name="matricola" required
+               value="{{ client.matricola if client else '' }}">
+      </div>
 
-            <div class="mb-3">
-                <label for="dataInstallazione" class="form-label">Data Installazione</label>
-                <input type="date" class="form-control" id="dataInstallazione" name="dataInstallazione" required
-                       value="{{ client.dataInstallazione if client else '' }}">
-            </div>
+      <div class="mb-3">
+        <label for="dataInstallazione" class="form-label">Data Installazione</label>
+        <input type="date" class="form-control" id="dataInstallazione" name="dataInstallazione" required
+               value="{{ client.dataInstallazione if client else '' }}">
+      </div>
 
-            <div class="mb-3">
-                <label for="files" class="form-label">Files (PDF, Immagini, Excel, etc)</label>
-                <input type="file" class="form-control" id="files" name="files" multiple>
-                {% if client and client.files %}
-                <div class="files-container mt-2">
-                    {% for file in client.files %}
-                    <div class="file-item">
-                        {% if file.type == 'image' %}
-                        <img src="{{ file.url }}" class="img-thumbnail" alt="{{ file.name }}"
-                             onclick="showFileModal('{{ client.id }}', '{{ file.name }}')">
-                        {% else %}
-                        <div class="file-icon" onclick="showFileModal('{{ client.id }}', '{{ file.name }}')">
-                            <i class="{{ get_file_icon(file.name) }} fs-1"></i>
-                            <div class="file-name">{{ file.name }}</div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Custom Fields Section -->
-            <div id="customFields">
-                {% if client and client.custom_fields %}
-                    {% for field_name, field_value in client.custom_fields.items() %}
-                    <div class="mb-3">
-                        <div class="row">
-                            <div class="col">
-                                <textarea class="form-control auto-resize" name="custom_field_name_{{ loop.index }}" rows="1">{{ field_name }}</textarea>
-                            </div>
-                            <div class="col">
-                                <textarea class="form-control auto-resize" name="custom_field_value_{{ loop.index }}" rows="1">{{ field_value }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
-                <button type="button" class="btn btn-secondary" onclick="addCustomField()">
-                    Aggiungi Campo Personalizzato
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="addContractField()">
-                    Aggiungi Contratto di Manutenzione
-                </button>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Salva Cliente</button>
-                <button type="button" onclick="window.location.href='/'" class="btn btn-secondary ms-2">Annulla</button>
-            </div>
-        </form>
+      <!-- File Upload Section -->
+     <div class="mb-3">
+    <label class="form-label">Files (PDF, Immagini, Excel, etc)</label>
+    <div id="fileInputsContainer">
+        <!-- Input file per selezionare file multipli -->
+        <input type="file" class="form-control" name="files" multiple>
+    </div>
+    <div class="mt-2">
+        <button type="button" class="btn btn-secondary" onclick="addFileInput()">Aggiungi altri file</button>
+        <!-- Tasto per aggiungere file da cartella -->
+        <button type="button" class="btn btn-secondary" onclick="addFolderInput()">Aggiungi file da cartella</button>
     </div>
 </div>
 
+
+      <!-- Custom Fields Section -->
+      <div id="customFields">
+        {% if client and client.custom_fields %}
+          {% for field_name, field_value in client.custom_fields.items() %}
+          <div class="mb-3">
+            <div class="row">
+              <div class="col">
+                <textarea class="form-control auto-resize" name="custom_field_name_{{ loop.index }}" rows="1">{{ field_name }}</textarea>
+              </div>
+              <div class="col">
+                <textarea class="form-control auto-resize" name="custom_field_value_{{ loop.index }}" rows="1">{{ field_value }}</textarea>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- Messaggio d'errore per custom fields -->
+      <div id="customFieldsError" style="display:none; color:red; margin-bottom:10px;"></div>
+
+      <div class="mb-3">
+        <button type="button" class="btn btn-secondary" onclick="addCustomField()">Aggiungi Campo Personalizzato</button>
+        <button type="button" class="btn btn-secondary" onclick="addContractField()">Aggiungi Contratto di Manutenzione</button>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary" id="submitButton">Salva Cliente</button>
+        <button type="button" onclick="window.location.href='/'" class="btn btn-secondary ms-2">Annulla</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-// Funzione per aggiungere un nuovo campo personalizzato con textarea
-function addCustomField() {
-    const container = document.getElementById('customFields');
-    const fieldNum = container.children.length + 1;
-
-    const div = document.createElement('div');
-    div.className = 'mb-3';
-    div.innerHTML = `
-        <div class="row">
-            <div class="col">
-                <textarea class="form-control auto-resize" placeholder="Nome campo" name="custom_field_name_${fieldNum}" rows="1"></textarea>
-            </div>
-            <div class="col">
-                <textarea class="form-control auto-resize" placeholder="Valore" name="custom_field_value_${fieldNum}" rows="1"></textarea>
-            </div>
-        </div>
-    `;
-    container.appendChild(div);
-    // Attacca gli event listener per l'auto-resize ai nuovi textarea
-    div.querySelectorAll("textarea.auto-resize").forEach(function(el) {
-        el.addEventListener('input', function() {
-            autoResizeTextarea(el);
-        });
-        autoResizeTextarea(el);
-    });
+// --- File Upload Functions ---
+// Aggiunge un nuovo file input per la selezione di file multipli
+function addFileInput() {
+  const container = document.getElementById('fileInputsContainer');
+  const newInput = document.createElement('input');
+  newInput.type = 'file';
+  newInput.name = 'files';
+  newInput.className = 'form-control mt-2';
+  newInput.multiple = true;
+  container.appendChild(newInput);
 }
 
-// Funzione per aggiungere un campo precompilato per "Contratto annuale di manutenzione"
-function addContractField() {
-    const container = document.getElementById('customFields');
-    const fieldNum = container.children.length + 1;
-
-    const div = document.createElement('div');
-    div.className = 'mb-3';
-    div.innerHTML = `
-        <div class="row">
-            <div class="col">
-                <textarea class="form-control auto-resize" name="custom_field_name_${fieldNum}" rows="1">Contratto annuale di manutenzione</textarea>
-            </div>
-            <div class="col">
-                <textarea class="form-control auto-resize" placeholder="Valore" name="custom_field_value_${fieldNum}" rows="1"></textarea>
-            </div>
-        </div>
-    `;
-    container.appendChild(div);
-    // Attacca gli event listener per l'auto-resize ai nuovi textarea
-    div.querySelectorAll("textarea.auto-resize").forEach(function(el) {
-        el.addEventListener('input', function() {
-            autoResizeTextarea(el);
-        });
-        autoResizeTextarea(el);
-    });
+// Aggiunge un nuovo file input per selezionare una cartella (utilizzando webkitdirectory)
+function addFolderInput() {
+  const container = document.getElementById('fileInputsContainer');
+  const newInput = document.createElement('input');
+  newInput.type = 'file';
+  newInput.name = 'folderFiles';
+  newInput.className = 'form-control mt-2';
+  newInput.setAttribute('webkitdirectory', '');
+  container.appendChild(newInput);
 }
 
-// Funzione per l'auto-resize dei textarea
+// --- Auto-resize Textarea ---
 function autoResizeTextarea(el) {
-    el.style.height = 'auto';
-    el.style.height = (el.scrollHeight) + "px";
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight) + "px";
 }
 
 document.querySelectorAll("textarea.auto-resize").forEach(function(el) {
-    el.addEventListener('input', function() {
-        autoResizeTextarea(el);
-    });
-    // Inizializza l'altezza al caricamento
+  el.addEventListener('input', function() {
     autoResizeTextarea(el);
+  });
+  autoResizeTextarea(el);
+});
+
+// --- Custom Fields Functions ---
+// Aggiunge un nuovo campo personalizzato (generico)
+function addCustomField() {
+  const container = document.getElementById('customFields');
+  const fieldNum = container.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'mb-3';
+  div.innerHTML = `
+    <div class="row">
+      <div class="col">
+        <textarea class="form-control auto-resize" placeholder="Nome campo" name="custom_field_name_${fieldNum}" rows="1"></textarea>
+      </div>
+      <div class="col">
+        <textarea class="form-control auto-resize" placeholder="Valore" name="custom_field_value_${fieldNum}" rows="1"></textarea>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  div.querySelectorAll("textarea.auto-resize").forEach(function(el) {
+    el.addEventListener('input', function() { autoResizeTextarea(el); });
+    autoResizeTextarea(el);
+  });
+  // Aggiungi evento blur per validare il campo appena creato
+  const newNameField = div.querySelector("textarea[name^='custom_field_name_']");
+  newNameField.addEventListener("blur", checkDuplicateKeys);
+}
+
+// Aggiunge un campo precompilato per "Contratto annuale di manutenzione"
+function addContractField() {
+  const container = document.getElementById('customFields');
+  const fieldNum = container.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'mb-3';
+  div.innerHTML = `
+    <div class="row">
+      <div class="col">
+        <textarea class="form-control auto-resize" name="custom_field_name_${fieldNum}" rows="1">Contratto annuale di manutenzione</textarea>
+      </div>
+      <div class="col">
+        <textarea class="form-control auto-resize" placeholder="Valore" name="custom_field_value_${fieldNum}" rows="1"></textarea>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  div.querySelectorAll("textarea.auto-resize").forEach(function(el) {
+    el.addEventListener('input', function() { autoResizeTextarea(el); });
+    autoResizeTextarea(el);
+  });
+  // Aggiungi evento blur per validare il campo appena creato
+  const newNameField = div.querySelector("textarea[name^='custom_field_name_']");
+  newNameField.addEventListener("blur", checkDuplicateKeys);
+}
+
+// Controlla in tempo reale se ci sono duplicati nei nomi dei custom fields
+function checkDuplicateKeys() {
+  const names = document.querySelectorAll("textarea[name^='custom_field_name_']");
+  const keyCount = {};
+  let duplicates = [];
+  names.forEach(function(el) {
+    const value = el.value.trim();
+    if (value !== "") {
+      keyCount[value] = (keyCount[value] || 0) + 1;
+    }
+  });
+  for (let key in keyCount) {
+    if (keyCount[key] > 1) {
+      duplicates.push(key);
+    }
+  }
+  const errorDiv = document.getElementById("customFieldsError");
+  const submitButton = document.getElementById("submitButton");
+  if (duplicates.length > 0) {
+    errorDiv.style.display = "block";
+    errorDiv.innerHTML = "Errore: chiavi duplicate trovate: " + duplicates.join(", ") + ". Per favore rimuovi i duplicati.";
+    submitButton.disabled = true;
+    return false;
+  } else {
+    errorDiv.style.display = "none";
+    errorDiv.innerHTML = "";
+    submitButton.disabled = false;
+    return true;
+  }
+}
+
+// Funzione per portare il focus al primo campo invalido
+function focusFirstInvalidField(form) {
+  const firstInvalid = form.querySelector(':invalid');
+  if (firstInvalid) {
+    firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+    firstInvalid.focus();
+  }
+}
+
+// Funzione di validazione globale che verifica custom fields e campi obbligatori
+function validateAndFocus() {
+  const form = document.getElementById("clientForm");
+  if (!checkDuplicateKeys()) {
+    focusFirstInvalidField(form);
+    return false;
+  }
+  if (!form.checkValidity()) {
+    focusFirstInvalidField(form);
+    return false;
+  }
+  return true;
+}
+
+function addFolderInput() {
+    const container = document.getElementById('fileInputsContainer');
+    const newInput = document.createElement('input');
+    newInput.type = 'file';
+    // Usa lo stesso nome 'files' per farli entrare nello stesso getlist
+    newInput.name = 'files';
+    newInput.className = 'form-control mt-2';
+    newInput.setAttribute('webkitdirectory', '');
+    container.appendChild(newInput);
+}
+
+
+// Aggiungi evento blur a tutti i custom field name già presenti
+document.addEventListener("DOMContentLoaded", function() {
+  const names = document.querySelectorAll("textarea[name^='custom_field_name_']");
+  names.forEach(function(el) {
+    el.addEventListener("blur", checkDuplicateKeys);
+  });
 });
 </script>
 {% endblock %}

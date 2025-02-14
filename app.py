@@ -12,7 +12,7 @@ import io
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = 'SECRET'  # Già presente, usata anche per le sessioni
+app.secret_key = ''  # Già presente, usata anche per le sessioni
 
 # Definisci le credenziali (in produzione, dovresti gestirle in modo più sicuro)
 app.config['USERNAME'] = ''
@@ -283,13 +283,27 @@ def search():
             if not c.get('custom_fields', {}).get("Contratto annuale di manutenzione", '').strip():
                 continue
 
-        # Cerca nel normale insieme di campi
-        match = (query in c.get('nome', '').lower() or 
-                 query in c.get('cognome', '').lower() or
-                 query in c.get('telefono', '').lower() or
-                 query in c.get('marca', '').lower() or
-                 query in c.get('modello', '').lower() or
-                 query in c.get('matricola', '').lower())
+        # Dividi la query in parole
+        query_parts = query.lower().split()
+
+        # Cerca nei campi principali
+        match = any(
+            all(part in c.get(field, '').lower() for part in query_parts) 
+            for field in ['telefono', 'marca', 'modello', 'matricola']
+        )
+
+        # Cerca combinando nome e cognome
+        nome = c.get('nome', '').lower()
+        cognome = c.get('cognome', '').lower()
+        full_name = f"{nome} {cognome}"
+
+        if len(query_parts) > 1:
+            # Se la query ha più parole, cerca in "Nome Cognome" unito
+            match = match or query in full_name
+        else:
+            # Se la query ha solo una parola, cerca separatamente in nome e cognome
+            match = match or any(part in nome or part in cognome for part in query_parts)
+
 
         # Se flaggato, estendi la ricerca ai campi custom
         if search_custom:
