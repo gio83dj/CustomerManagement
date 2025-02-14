@@ -27,3 +27,18 @@
     object-fit: cover;
     height: 100px;
 }
+
+#scrollToBottom {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+
+#scrollToTop {
+    position: fixed;
+    bottom: 80px;  /* Posizionato sopra il pulsante per scorrere in basso */
+    right: 20px;
+    z-index: 1000;
+}

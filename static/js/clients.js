@@ -6,7 +6,7 @@ let currentImages = [];
 let currentFileName = '';
 
 function initializeEventListeners() {
-    // Client form handling
+    // Client form handling (già presente)
     const clientForm = document.getElementById('clientForm');
     if (clientForm) {
         clientForm.addEventListener('submit', async function(e) {
@@ -29,12 +29,27 @@ function initializeEventListeners() {
         });
     }
 
-    // Search functionality
+    // Search functionality: chiamata automatica al cambio di valore
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
-
+    
+    const brandInput = document.getElementById('brandInput');
+    if (brandInput) {
+        brandInput.addEventListener('input', debounce(handleSearch, 300));
+    }
+    
+    const contractCheckbox = document.getElementById('contractCheckbox');
+    if (contractCheckbox) {
+        contractCheckbox.addEventListener('change', handleSearch);
+    }
+    
+    const customCheckbox = document.getElementById('customCheckbox');
+    if (customCheckbox) {
+        customCheckbox.addEventListener('change', handleSearch);
+    }
+    
     // Modal event listener
     const fileModal = document.getElementById('fileModal');
     if (fileModal) {
@@ -73,12 +88,17 @@ function showFileModal(clientId, filename) {
     const modalBody = document.getElementById('fileModalBody');
     
     if (isImage) {
+        // Ottieni le immagini dalla gallery (assumendo che siano presenti come <img> con alt uguale al filename)
         const fileElements = document.querySelectorAll('.file-item img');
         currentImages = Array.from(fileElements).map(img => img.alt);
         currentImageIndex = currentImages.indexOf(filename);
         
-        modalBody.innerHTML = `
-            <div class="position-relative">
+        // Crea il contenitore che racchiude il percorso e l'immagine
+        const containerHTML = `
+            <div id="swipeContainer" class="position-relative">
+                <div class="image-path text-center mb-2" style="color: white; font-size: 0.9rem;">
+                    ${fileUrl}
+                </div>
                 <img src="${fileUrl}" class="img-fluid" alt="${filename}">
                 ${currentImages.length > 1 ? `
                     <button class="btn btn-outline-light position-absolute top-50 start-0 translate-middle-y" onclick="prevImage()" style="margin-left: 10px;">
@@ -90,6 +110,28 @@ function showFileModal(clientId, filename) {
                 ` : ''}
             </div>
         `;
+        modalBody.innerHTML = containerHTML;
+        
+        // Aggiunge supporto per swipe attaccando gli eventi al contenitore "swipeContainer"
+        const swipeContainer = document.getElementById("swipeContainer");
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        swipeContainer.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+        
+        swipeContainer.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const threshold = 50; // distanza minima in pixel per considerare lo swipe
+            if (touchEndX < touchStartX - threshold) {
+                // Swipe verso sinistra: immagine successiva
+                nextImage();
+            } else if (touchEndX > touchStartX + threshold) {
+                // Swipe verso destra: immagine precedente
+                prevImage();
+            }
+        }, false);
     } else {
         modalBody.innerHTML = `
             <div class="text-center">
@@ -106,14 +148,22 @@ function showFileModal(clientId, filename) {
     document.addEventListener('keydown', handleKeyPress);
 }
 
+
 function prevImage() {
     if (!currentImages || currentImages.length <= 1) return;
     currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
     currentFileName = currentImages[currentImageIndex];
     const fileUrl = `/data/${currentClientId}/${currentFileName}`;
     const modalBody = document.getElementById('fileModalBody');
-    modalBody.querySelector('img').src = fileUrl;
-    modalBody.querySelector('img').alt = currentFileName;
+    const img = modalBody.querySelector('img');
+    if (img) {
+        img.src = fileUrl;
+        img.alt = currentFileName;
+    }
+    const pathElem = modalBody.querySelector('.image-path');
+    if (pathElem) {
+        pathElem.innerText = fileUrl;
+    }
 }
 
 function nextImage() {
@@ -122,9 +172,17 @@ function nextImage() {
     currentFileName = currentImages[currentImageIndex];
     const fileUrl = `/data/${currentClientId}/${currentFileName}`;
     const modalBody = document.getElementById('fileModalBody');
-    modalBody.querySelector('img').src = fileUrl;
-    modalBody.querySelector('img').alt = currentFileName;
+    const img = modalBody.querySelector('img');
+    if (img) {
+        img.src = fileUrl;
+        img.alt = currentFileName;
+    }
+    const pathElem = modalBody.querySelector('.image-path');
+    if (pathElem) {
+        pathElem.innerText = fileUrl;
+    }
 }
+
 
 function handleKeyPress(event) {
     if (event.key === 'ArrowLeft') {
@@ -141,16 +199,28 @@ function exportToExcel() {
 function handleSearch() {
     const searchInput = document.getElementById('searchInput');
     const query = searchInput.value.trim();
-    const clientsList = document.getElementById('clientsList');
+    
+    const contractCheckbox = document.getElementById('contractCheckbox');
+    const customCheckbox = document.getElementById('customCheckbox');
+    const brandInput = document.getElementById('brandInput');
+    const brandQuery = brandInput.value.trim();
 
-    if (!query) {
-        window.location.reload();
-        return;
+    // Costruisci l'URL con i parametri extra
+    let url = `/search?q=${encodeURIComponent(query)}`;
+    if (contractCheckbox && contractCheckbox.checked) {
+        url += `&contract=1`;
+    }
+    if (customCheckbox && customCheckbox.checked) {
+        url += `&custom=1`;
+    }
+    if (brandQuery) {
+        url += `&brand=${encodeURIComponent(brandQuery)}`;
     }
 
-    fetch(`/search?q=${encodeURIComponent(query)}`)
+    fetch(url)
         .then(response => response.json())
         .then(clients => {
+            const clientsList = document.getElementById('clientsList');
             clientsList.innerHTML = clients.map(client => `
                 <div class="col-md-6 mb-3">
                     <div class="card">
@@ -176,6 +246,7 @@ function handleSearch() {
         })
         .catch(error => console.error('Error:', error));
 }
+
 
 function debounce(func, wait) {
     let timeout;

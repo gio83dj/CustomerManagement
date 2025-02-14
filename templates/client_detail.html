@@ -29,7 +29,7 @@
                     {% if client.custom_fields %}
                     <h4 class="mt-4">Campi Personalizzati</h4>
                     {% for field_name, field_value in client.custom_fields.items() %}
-                    <p><strong>{{ field_name }}:</strong> {{ field_value }}</p>
+                    <p><strong>{{ field_name }}:</strong> {{ field_value | safe }}</p>
                     {% endfor %}
                     {% endif %}
 

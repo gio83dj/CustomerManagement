@@ -1,16 +1,26 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <h2>Clienti</h2>
+<div class="row mb-3">
+    <div class="col-md-4">
         <input type="text" id="searchInput" class="form-control" 
-               placeholder="Cerca per nome, telefono o matricola...">
+               placeholder="Cerca per nome, telefono, modello o matricola...">
     </div>
-    <div class="col-md-6 mb-4 text-end">
-        <button onclick="exportToExcel()" class="btn btn-success">
-            <i class="bi bi-file-excel"></i> Esporta in Excel
-        </button>
+    <div class="col-md-2">
+        <div class="form-check">
+            <input type="checkbox" id="contractCheckbox" class="form-check-input">
+            <label for="contractCheckbox" class="form-check-label">Solo Contr. Manutenz.</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-check">
+            <input type="checkbox" id="customCheckbox" class="form-check-input">
+            <label for="customCheckbox" class="form-check-label">Cerca tra le Note</label>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <input type="text" id="brandInput" class="form-control" 
+               placeholder="Cerca per marca">
     </div>
 </div>
 
@@ -42,4 +52,36 @@
 <div class="text-center mt-4">
     <a href="/add_client" class="btn btn-primary">Aggiungi Nuovo Cliente</a>
 </div>
+
+
+
+<!-- Pulsante fluttuante per scorrere in alto -->
+<a href="#" id="scrollToTop" class="btn btn-secondary">
+    <i class="bi bi-arrow-up-circle"></i>
+</a>
+
+<!-- Pulsante fluttuante per scorrere in fondo alla pagina -->
+<a href="#" id="scrollToBottom" class="btn btn-primary">
+    <i class="bi bi-arrow-down-circle"></i>
+</a>
+
+<script>
+    document.getElementById("scrollToBottom").addEventListener("click", function(event) {
+        event.preventDefault();
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
+	
+	
+	document.getElementById("scrollToTop").addEventListener("click", function(event) {
+		event.preventDefault();
+		window.scrollTo({
+			top: 0,
+			behavior: 'smooth'
+		});
+	});
+
+</script>
 {% endblock %}

@@ -12,11 +12,11 @@ import io
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'  # Già presente, usata anche per le sessioni
+app.secret_key = 'SECRET'  # Già presente, usata anche per le sessioni
 
 # Definisci le credenziali (in produzione, dovresti gestirle in modo più sicuro)
-app.config['USERNAME'] = 'user'
-app.config['PASSWORD'] = 'pass'
+app.config['USERNAME'] = ''
+app.config['PASSWORD'] = ''
 
 @app.before_request
 def require_login():
@@ -25,7 +25,6 @@ def require_login():
     if request.endpoint not in allowed_routes and not session.get('logged_in'):
         logging.debug("Utente non autenticato, redirect alla pagina di login.")
         return redirect(url_for('login', next=request.url))
-
 
 
 # Ensure data and uploads directories exist
@@ -207,10 +206,17 @@ def edit_client(client_id):
             return jsonify({'success': False})
 
     return render_template('client_form.html', client=client, edit_mode=True)
-
+    
+'''
 @app.route('/data/<client_id>/<filename>')
 def client_file(client_id, filename):
     return send_from_directory(get_client_dir(client_id), filename)
+'''
+
+@app.route('/data/<client_id>/<path:filename>')
+def client_file(client_id, filename):
+    return send_from_directory(get_client_dir(client_id), filename)
+
 
 @app.route('/add_client', methods=['GET', 'POST'])
 def add_client():
@@ -261,18 +267,45 @@ def add_client():
 @app.route('/search')
 def search():
     query = request.args.get('q', '').lower()
-    clients = load_clients()
-    results = [c for c in clients if 
-              query in c.get('nome', '').lower() or 
-              query in c.get('cognome', '').lower() or
-              query in c.get('telefono', '').lower() or
-              query in c.get('matricola', '').lower()]
+    only_contract = request.args.get('contract', '0') == '1'
+    search_custom = request.args.get('custom', '0') == '1'
+    brand_filter = request.args.get('brand', '').lower()
 
-    # Log for debugging
+    clients = load_clients()
+    results = []
+    for c in clients:
+        # Filtra per marca se il brand_filter è fornito
+        if brand_filter and brand_filter not in c.get('marca', '').lower():
+            continue
+
+        # Se richiesto, includi solo i clienti che hanno il campo "Contratto annuale di manutenzione"
+        if only_contract:
+            if not c.get('custom_fields', {}).get("Contratto annuale di manutenzione", '').strip():
+                continue
+
+        # Cerca nel normale insieme di campi
+        match = (query in c.get('nome', '').lower() or 
+                 query in c.get('cognome', '').lower() or
+                 query in c.get('telefono', '').lower() or
+                 query in c.get('marca', '').lower() or
+                 query in c.get('modello', '').lower() or
+                 query in c.get('matricola', '').lower())
+
+        # Se flaggato, estendi la ricerca ai campi custom
+        if search_custom:
+            for key, value in c.get('custom_fields', {}).items():
+                if query in value.lower():
+                    match = True
+                    break
+
+        if match:
+            results.append(c)
+
+    # Log per debug
     logging.debug(f"Search query: {query}")
     logging.debug(f"Found {len(results)} results")
-
     return jsonify(results)
+
 
 @app.route('/delete_client/<client_id>', methods=['POST'])
 def delete_client_route(client_id):

@@ -90,20 +90,17 @@
                 {% endif %}
             </div>
 
+            <!-- Custom Fields Section -->
             <div id="customFields">
                 {% if client and client.custom_fields %}
                     {% for field_name, field_value in client.custom_fields.items() %}
                     <div class="mb-3">
                         <div class="row">
                             <div class="col">
-                                <input type="text" class="form-control" 
-                                       value="{{ field_name }}"
-                                       name="custom_field_name_{{ loop.index }}">
+                                <textarea class="form-control auto-resize" name="custom_field_name_{{ loop.index }}" rows="1">{{ field_name }}</textarea>
                             </div>
                             <div class="col">
-                                <input type="text" class="form-control" 
-                                       value="{{ field_value }}"
-                                       name="custom_field_value_{{ loop.index }}">
+                                <textarea class="form-control auto-resize" name="custom_field_value_{{ loop.index }}" rows="1">{{ field_value }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -111,9 +108,14 @@
                 {% endif %}
             </div>
 
-            <button type="button" class="btn btn-secondary mb-3" onclick="addCustomField()">
-                Aggiungi Campo Personalizzato
-            </button>
+            <div class="mb-3">
+                <button type="button" class="btn btn-secondary" onclick="addCustomField()">
+                    Aggiungi Campo Personalizzato
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="addContractField()">
+                    Aggiungi Contratto di Manutenzione
+                </button>
+            </div>
 
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Salva Cliente</button>
@@ -124,6 +126,7 @@
 </div>
 
 <script>
+// Funzione per aggiungere un nuovo campo personalizzato con textarea
 function addCustomField() {
     const container = document.getElementById('customFields');
     const fieldNum = container.children.length + 1;
@@ -133,25 +136,62 @@ function addCustomField() {
     div.innerHTML = `
         <div class="row">
             <div class="col">
-                <input type="text" class="form-control" 
-                       placeholder="Nome campo" 
-                       name="custom_field_name_${fieldNum}">
+                <textarea class="form-control auto-resize" placeholder="Nome campo" name="custom_field_name_${fieldNum}" rows="1"></textarea>
             </div>
             <div class="col">
-                <input type="text" class="form-control" 
-                       placeholder="Valore" 
-                       name="custom_field_value_${fieldNum}">
+                <textarea class="form-control auto-resize" placeholder="Valore" name="custom_field_value_${fieldNum}" rows="1"></textarea>
             </div>
         </div>
     `;
-
     container.appendChild(div);
+    // Attacca gli event listener per l'auto-resize ai nuovi textarea
+    div.querySelectorAll("textarea.auto-resize").forEach(function(el) {
+        el.addEventListener('input', function() {
+            autoResizeTextarea(el);
+        });
+        autoResizeTextarea(el);
+    });
 }
-function showImageModal(clientId, imageName) {
-    const modalImage = document.getElementById('modalImage');
-    modalImage.src = `/data/${clientId}/${imageName}`;
-    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-    modal.show();
+
+// Funzione per aggiungere un campo precompilato per "Contratto annuale di manutenzione"
+function addContractField() {
+    const container = document.getElementById('customFields');
+    const fieldNum = container.children.length + 1;
+
+    const div = document.createElement('div');
+    div.className = 'mb-3';
+    div.innerHTML = `
+        <div class="row">
+            <div class="col">
+                <textarea class="form-control auto-resize" name="custom_field_name_${fieldNum}" rows="1">Contratto annuale di manutenzione</textarea>
+            </div>
+            <div class="col">
+                <textarea class="form-control auto-resize" placeholder="Valore" name="custom_field_value_${fieldNum}" rows="1"></textarea>
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+    // Attacca gli event listener per l'auto-resize ai nuovi textarea
+    div.querySelectorAll("textarea.auto-resize").forEach(function(el) {
+        el.addEventListener('input', function() {
+            autoResizeTextarea(el);
+        });
+        autoResizeTextarea(el);
+    });
 }
+
+// Funzione per l'auto-resize dei textarea
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + "px";
+}
+
+document.querySelectorAll("textarea.auto-resize").forEach(function(el) {
+    el.addEventListener('input', function() {
+        autoResizeTextarea(el);
+    });
+    // Inizializza l'altezza al caricamento
+    autoResizeTextarea(el);
+});
 </script>
 {% endblock %}
